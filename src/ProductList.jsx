@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
 import "./ProductList.css";
 import CartItem from "./CartItem";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "./CartSlice";
 function ProductList() {
   const [showCart, setShowCart] = useState(false);
   const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
-  const [addedToCart, setAddedToCart] = useState({});
+  const addedToCart = useSelector((state) => {
+    const map = {};
+    state.cart.items.forEach((item) => (map[item.name] = true));
+    return map;
+  });
   const dispatch = useDispatch();
   const plantsArray = [
     {
@@ -282,10 +286,6 @@ function ProductList() {
   const handleAddToCart = (plant) => {
     // add plant to the cart
     dispatch(addItem(plant));
-    setAddedToCart((prev) => ({
-      ...prev,
-      [plant.name]: true,
-    }));
   };
 
   const handleContinueShopping = (e) => {
@@ -349,9 +349,7 @@ function ProductList() {
         <div className="product-grid">
           {plantsArray.map((category, index) => (
             <div key={index}>
-              <h1>
-                <div>{category.category}</div>
-              </h1>
+              <h1 className="plant-category">{category.category}</h1>
               <div className="product-list">
                 {category.plants.map((plant, index) => (
                   <div className="product-card" key={index}>
@@ -362,6 +360,10 @@ function ProductList() {
                     />
                     <div className="product-title">{plant.name}</div>
                     {/*Similarly like the above plant.name show other details like description and cost*/}
+                    <div className="product-price">{plant.cost}</div>
+                    <div className="product-description">
+                      {plant.description}
+                    </div>
                     <button
                       className={`product-button ${
                         addedToCart[plant.name] && "added-to-cart"
